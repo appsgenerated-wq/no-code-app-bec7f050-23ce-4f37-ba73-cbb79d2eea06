@@ -1,0 +1,79 @@
+name: ChimpTracker
+
+entities:
+  User:
+    authenticable: true
+    properties:
+      - name
+      - name: email
+        type: email
+      - name: role
+        type: choice
+        options:
+          values: [admin, researcher]
+        default: researcher
+    policies:
+      create:
+        - access: admin
+      read:
+        - access: restricted
+          allow: User
+          condition: self
+      update:
+        - access: restricted
+          allow: User
+          condition: self
+      delete:
+        - access: admin
+      signup:
+        - access: public
+
+  ChimpObservation:
+    properties:
+      - name: chimpName
+        type: string
+        helpText: 'The name or identifier of the chimpanzee.'
+      - name: location
+        type: string
+        helpText: 'Where the observation took place.'
+      - name: behavior
+        type: text
+        helpText: 'Detailed description of the observed behavior.'
+      - name: observationDate
+        type: timestamp
+        default: now
+      - name: photo
+        type: image
+        options:
+          sizes:
+            thumbnail:
+              width: 200
+              height: 200
+            medium:
+              width: 800
+    belongsTo:
+      - name: observer
+        entity: User
+    policies:
+      create:
+        - access: restricted
+          allow: User
+      read:
+        - access: public
+      update:
+        - access: restricted
+          allow: User
+          condition: self
+      delete:
+        - access: restricted
+          allow: User
+          condition: self
+
+
+# Health check endpoint for connection testing
+endpoints:
+  health:
+    path: /api/health
+    method: GET
+    policies: []
+    handler: healthCheck
